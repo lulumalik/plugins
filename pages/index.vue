@@ -1,12 +1,14 @@
 <template>
   <div class="container">
     <div>
-      <div ref="map" id="map" class="map h-screen w-screen z-0"></div>
-      <div v-if="map">
-        <div v-for="(data, i) in listPlugins" :key="i">
-          <component :is="data.name" />
+      <client-only>
+        <div ref="map" id="map" class="map h-screen w-screen z-0"></div>
+        <div v-if="map">
+          <div v-for="(data, i) in listPlugins" :key="i">
+            <component :is="data.name" />
+          </div>
         </div>
-      </div>
+      </client-only>
     </div>
   </div>
 </template>
@@ -30,20 +32,19 @@ export default {
         scrollWheelZoom: false,
         smoothWheelZoom: true,
         smoothSensitivity: 1.9,
-        preferCanvas: true,
       },
       // list array plugins yang terinstall
       listPlugins: [
         {
           // rule untuk penulisan nama component itu disesuaikan dengan Vue seperti biasa
           // camelcase lebih baik.
-          name: "dataComponent", // nama component 
-          path: "/coba2/", // path request axios.
+          name: "dataComponent", // nama component
+          path: "http://localhost:8080/", // path request axios.
         },
-        {
-          name: "signature",
-          path: "/coba/"
-        }
+        // {
+        //   name: "dist",
+        //   path: "/dist/"
+        // }
       ],
     };
   },
@@ -56,6 +57,7 @@ export default {
         // ambil html
         axios.get(el.path).then((response) => {
           // return template
+          console.log(response.data)
           resolve({
             template: response.data,
           });
@@ -63,11 +65,13 @@ export default {
       });
     });
     // import dalam client side
-    this.map = L.map(this.$refs.map, this.opt);
-    window.globalMap = this.map;
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
-      this.map
-    );
+    process.nextTick(() => {
+      this.map = L.map(this.$refs.map, this.opt);
+      window.globalMap = this.map;
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
+        this.map
+      );
+    });
     // this.loadFile();
   },
   computed: {
