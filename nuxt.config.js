@@ -1,7 +1,7 @@
 export default {
-  // router: {
-  //   base: "/siam/",
-  // },
+  router: {
+    base: "/plugins/",
+  },
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'testhtml',
