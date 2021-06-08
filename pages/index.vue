@@ -19,7 +19,6 @@ import axios from "axios";
 export default {
   data: function () {
     return {
-      input: "ea",
       url: null,
       map: null,
       opt: {
@@ -74,10 +73,8 @@ export default {
     });
     // this.loadFile();
   },
-  computed: {
-    compiledHtml: function () {
-      return this.input;
-    },
+  destroyed() {
+    delete window.globalMap
   },
   // mounted() {
   //   process.nextTick(() => {

@@ -1,9 +1,9 @@
 export default {
   
   target: 'static',
-  router: {
-    base: "/plugins/",
-  },
+  // router: {
+  //   base: "/plugins/",
+  // },
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'testhtml',
