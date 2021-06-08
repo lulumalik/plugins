@@ -1,4 +1,6 @@
 export default {
+  
+  target: 'static',
   router: {
     base: "/plugins/",
   },
