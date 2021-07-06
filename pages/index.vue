@@ -3,9 +3,9 @@
     <div>
       <client-only>
         <div ref="map" id="map" class="map h-screen w-screen z-0"></div>
-        <div v-if="map">
+        <div v-if="showComponent">
           <div v-for="(data, i) in listPlugins" :key="i">
-            <component :is="data.name" />
+            <component :is="data.name" :opt="opt" />
           </div>
         </div>
       </client-only>
@@ -21,6 +21,7 @@ export default {
     return {
       url: null,
       map: null,
+      showComponent: false,
       opt: {
         zoomControl: false,
         minZoom: 2,
@@ -28,7 +29,6 @@ export default {
         center: [0, 115],
         // maxBoundsViscosity: 1.0,
         zoomSnap: 0.1,
-        scrollWheelZoom: false,
         smoothWheelZoom: true,
         smoothSensitivity: 1.9,
       },
@@ -50,19 +50,7 @@ export default {
   mounted() {
     // server + client
     // import dari server side, Vue component dan axios
-    this.listPlugins.forEach((el) => {
-      // import component
-      Vue.component(el.name, function (resolve, reject) {
-        // ambil html
-        axios.get(el.path).then((response) => {
-          // return template
-          console.log(response.data)
-          resolve({
-            template: response.data,
-          });
-        });
-      });
-    });
+
     // import dalam client side
     process.nextTick(() => {
       this.map = L.map(this.$refs.map, this.opt);
@@ -70,11 +58,26 @@ export default {
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
         this.map
       );
+      this.listPlugins.forEach((el) => {
+        // import component
+        Vue.component(el.name, function (resolve, reject) {
+          // ambil html
+          axios.get(el.path).then((response) => {
+            // return template
+            // response.data.json --> us state
+            resolve({
+              template: response.data.html,
+            });
+          });
+        });
+      });
+
+      this.showComponent = true;
     });
     // this.loadFile();
   },
   destroyed() {
-    delete window.globalMap
+    delete window.globalMap;
   },
   // mounted() {
   //   process.nextTick(() => {
