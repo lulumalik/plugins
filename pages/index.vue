@@ -54,7 +54,7 @@ export default {
     // import dalam client side
     process.nextTick(() => {
       this.map = L.map(this.$refs.map, this.opt);
-      window.globalMap = this.map;
+      window.$parent.map = this.map;
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
         this.map
       );
@@ -77,7 +77,7 @@ export default {
     // this.loadFile();
   },
   destroyed() {
-    delete window.globalMap;
+    delete window.$parent.map;
   },
   // mounted() {
   //   process.nextTick(() => {
