@@ -54,7 +54,7 @@ export default {
     // import dalam client side
     process.nextTick(() => {
       this.map = L.map(this.$refs.map, this.opt);
-      window.$parent.map = this.map;
+      window.$parent = this.$parent.$children[0]
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
         this.map
       );
