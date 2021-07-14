@@ -1,0 +1,153 @@
+<div>
+    <label>
+        <input type="checkbox" name="switch" />
+        <div>On/Off Draw</div>
+    </label>
+    <script type="application/javascript">
+        var map = window.$parent.map,
+            polylineGroupLabel = L.layerGroup(),
+            points = [],
+            latlngPolyline = [],
+            currentLayer = null;
+
+        map.addLayer(polylineGroupLabel)
+        var script = document.createElement('script');
+        script.onload = function () {
+
+            // code
+            /* event listener */
+            document.getElementsByName("switch")[0].addEventListener('change', doThing);
+            var value = false
+            // listen map editable
+
+            map.on("editable:dragstart", function (e) {
+                polylineGroupLabel.clearLayers();
+            })
+            map.on("editable:dragend", function (e) {
+                initialLabel(e)
+            })
+            // 
+            map.on("editable:drawing:end", function (e) {
+                
+                currentLayer = e.layer
+                if (points.length == 0) {
+                    return "not valid points";
+                }
+                var line = turf.lineString(self.points),
+                    flipLine = turf.flip(line),
+                    length = turf.length(flipLine, { units: "kilometers" }),
+                    arrayMarker = {},
+                    arrayLayer = [];
+
+                var distance = parseInt(length) <= 500 ? 50 : 100;
+                for (var a = distance; a <= length; a += distance) {
+                    var along = turf.along(flipLine, a, { units: "kilometers" });
+                    arrayMarker[a] = {
+                        lng: along.geometry.coordinates[0],
+                        lat: along.geometry.coordinates[1],
+                    }
+                }
+                var latlngLayer = e.layer.getLatLngs();
+                latlngLayer.forEach((element) => {
+                    arrayLayer.push({ lat: element.lat, lng: element.lng });
+                });
+            })
+            // 
+            map.on("editable:vertex:deleted", function (e) {
+                initialLabel(e)
+            })
+            // 
+            map.on("editable:drawing:mousedown", function (e) {
+                latlngPolyline.push({
+                    latlng: { lat: e.latlng.lat, lng: e.latlng.lng },
+                });
+                if (latlngPolyline.length > 0) {
+                    initAlongMarker(e);
+                }
+
+            })
+            // 
+            map.on("editable:vertex:dragstart", function (e) {
+                polylineGroupLabel.clearLayers();
+            })
+            // 
+            map.on("editable:vertex:dragend", function (e) {
+                initialLabel(e)
+                currentLayer = e.layer
+            })
+            // end
+
+            /* function */
+            function initialLabel(e) {
+                var arrayLat = e.layer.getLatLngs();
+                latlngPolyline.length = 0;
+                for (let i = 0; i < arrayLat.length; i++) {
+                    const latlng = arrayLat[i];
+                    latlngPolyline.push({
+                        latlng: { lat: latlng.lat, lng: latlng.lng },
+                    });
+                }
+                initAlongMarker();
+            }
+            function doThing(e) {
+                value = !value
+                if (value) {
+                    map.editTools.startPolyline(null, { color: "gray" });
+                } else {
+                    map.removeLayer(currentLayer)
+                    polylineGroupLabel.clearLayers();
+                    map.editTools.stopDrawing();
+                }
+            }
+
+            function initAlongMarker(e) {
+                var iconKM;
+                points.length = 0;
+
+                for (let index = 0; index < latlngPolyline.length; index++) {
+                    const element = latlngPolyline[index];
+                    points.push([element.latlng.lat, element.latlng.lng]);
+                }
+
+                if (e) {
+                    points.push([e.latlng.lat, e.latlng.lng]);
+                }
+
+                var line = turf.lineString(points),
+                    flipLine = turf.flip(line),
+                    length = turf.length(flipLine, { units: "kilometers" });
+                // 100 km
+                //
+
+                var distance = parseInt(length) <= 500 ? 50 : 100;
+
+                polylineGroupLabel.clearLayers();
+
+                for (var a = distance; a <= length; a += distance) {
+                    var along = turf.along(flipLine, a, { units: "kilometers" });
+                    iconKM = L.divIcon({
+                        html: `<div class="relative">
+          <div style="width:7px;height:7px;background:white;border:1px solid gray;position:absolute;top:0px;left:0px;right:0px;margin:0px auto;border-radius:50%;"></div>
+          <div style="color:#000;position:relative;top:10px;right:5px;">${a}</div></div>`,
+                        iconAnchor: [0, 7],
+                    });
+                    polylineGroupLabel.addLayer(
+                        L.marker(
+                            {
+                                lng: along.geometry.coordinates[0],
+                                lat: along.geometry.coordinates[1],
+                            },
+                            { icon: iconKM }
+                        )
+                    );
+                }
+            }
+        }
+
+
+        script.src = "https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js";
+        document.getElementsByTagName('head')[0].appendChild(script);
+
+
+    </script>
+</div>

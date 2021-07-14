@@ -4,6 +4,8 @@ import 'leaflet/dist/leaflet.js';
 // import css
 import 'leaflet/dist/leaflet.css';
 
+import './leafleteditable'
+
 import {
     Icon
 } from "leaflet";

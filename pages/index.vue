@@ -3,7 +3,7 @@
     <div>
       <client-only>
         <div ref="map" id="map" class="map h-screen w-screen z-0"></div>
-        <div v-if="showComponent">
+        <div v-if="map">
           <div v-for="(data, i) in listPlugins" :key="i">
             <component :is="data.name" :opt="opt" />
           </div>
@@ -26,6 +26,8 @@ export default {
         zoomControl: false,
         minZoom: 2,
         zoom: 2,
+        
+        editable: true,
         center: [0, 115],
         // maxBoundsViscosity: 1.0,
         zoomSnap: 0.1,
@@ -38,12 +40,8 @@ export default {
           // rule untuk penulisan nama component itu disesuaikan dengan Vue seperti biasa
           // camelcase lebih baik.
           name: "dataComponent", // nama component
-          path: "http://localhost:8080/", // path request axios.
-        },
-        // {
-        //   name: "dist",
-        //   path: "/dist/"
-        // }
+          path: "http://localhost:3020/", // path request axios.
+        }
       ],
     };
   },
